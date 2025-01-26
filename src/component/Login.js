@@ -7,8 +7,12 @@ import { checkValidEmail, checkValidPassword } from "../utills/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utills/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utills/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -17,6 +21,9 @@ const Login = () => {
   const [authErrorMessage, setAuthErrorMessage] = useState(null);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
+  const nameRef = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const toggleForm = () => {
     setIsSignInForm(!isSignInForm);
@@ -40,8 +47,23 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
+          updateProfile(user, {
+            displayName: nameRef.current.value,
+          })
+            .then(() => {
+              // Profile updated!
+              const { uid, email, displayName } = auth.currentUser;
+              dispatch(
+                addUser({ uid: uid, email: email, displayName: displayName })
+              );
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+            });
+
           setAuthErrorMessage("");
-          console.log(user);
+          navigate("/browse");
         })
         .catch((error) => {
           // If Authentication Error
@@ -55,6 +77,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           setAuthErrorMessage("");
+          navigate("/browse");
           console.log(user);
           // ...
         })
@@ -69,7 +92,7 @@ const Login = () => {
   return (
     <div>
       <Header></Header>
-      <div className='absolute w-full h-screen overflow-hidden'>
+      <div className='absolute'>
         <img
           src='
 https://assets.nflxext.com/ffe/siteui/vlv3/e3e9c31f-aa15-4a8f-8059-04f01e6b8629/web/IN-en-20250113-TRIFECTA-perspective_febfa442-23d9-45f3-937e-72f8b971f7a9_medium.jpg'
@@ -86,8 +109,9 @@ https://assets.nflxext.com/ffe/siteui/vlv3/e3e9c31f-aa15-4a8f-8059-04f01e6b8629/
         <p className='ml-2 text-red-700'>{authErrorMessage}</p>
         {!isSignInForm && (
           <input
+            ref={nameRef}
             type='text'
-            placeholder='Name'
+            placeholder=' Full Name'
             className='p-3 m-2 w-full'
           ></input>
         )}
@@ -116,7 +140,7 @@ https://assets.nflxext.com/ffe/siteui/vlv3/e3e9c31f-aa15-4a8f-8059-04f01e6b8629/
           {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
         <p className='p-3 m-2  text-white' onClick={toggleForm}>
-          {isSignInForm ? "Already a User? Sign Up" : "New User? Sign In"}
+          {isSignInForm ? "New User? Sign Up" : "Already a User? Sign In"}
         </p>
       </form>
     </div>
