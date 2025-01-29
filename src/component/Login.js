@@ -77,7 +77,7 @@ const Login = () => {
           // Signed in
           const user = userCredential.user;
           setAuthErrorMessage("");
-          navigate("/browse");
+
           console.log(user);
           // ...
         })
