@@ -3,13 +3,13 @@
 import React from "react";
 import VedioBackgroundTrailer from "./VedioBackgroundTrailer";
 import VedioTitle from "./VedioTitle";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 const MainContainer = () => {
   const movies = useSelector((store) => store.movies?.nowPlayingMovies);
   if (!movies) return;
 
-  const mainMovie = movies[0];
+  const mainMovie = movies[1];
   const { title, overview, id } = mainMovie;
 
   return (
